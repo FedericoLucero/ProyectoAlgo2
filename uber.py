@@ -3,7 +3,7 @@ import pickle
 import re
 info = {}
 grafo = {}
-
+#
 def create_map(local_path):
     """ Código para crear el mapa utilizando el local_path """
     
