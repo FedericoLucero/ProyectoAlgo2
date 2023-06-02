@@ -276,5 +276,4 @@ def pop(S):
     return element
   else:
     return None
-  
-  #aaaaaaaaaa
+
