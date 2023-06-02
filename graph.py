@@ -76,4 +76,3 @@ def printGraph(G):
         print("[",currentNode.value.value,"] ",end = " ")
         currentNode = currentNode.nextNode
       print(" ")
-      
