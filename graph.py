@@ -1,47 +1,50 @@
-class Nodo:
-  def __init__(self, identificador):
-    self.id = identificador
-    self.aristas_salientes = []
-
-class Arista:
-  def __init__(self, destino, distancia):
-    self.destino = destino
-    self.distancia = distancia
-
-def createGraph(vertices, aristas):
-  grafo = []
-  
-  # Crear nodos
-  for v in vertices:
-    nodo = Nodo(v)
-    grafo.append(nodo)
-  
-  # Agregar aristas salientes
-  for origen, destino, distancia in aristas:
-    nodo_origen = grafo[origen]
-    arista = Arista(destino, distancia)
-    nodo_origen.aristas_salientes.append(arista)
-  
-  return grafo
-
-# Ejemplo de uso
-#vertices = [0, 1, 2, 3, 4]
-#aristas = [(0, 1, 5), (0, 4, 2), (1, 2, 3), (1, 3, 4), (1, 4, 1), (2, 3, 2), (3, 4, 3)]
-#grafo = createGraph(vertices, aristas)
-
-# Imprimir listas de adyacencia con distancias
-#for nodo in grafo:
-  #aristas_salientes = [(a.destino, a.distancia) for a in nodo.aristas_salientes]
-  #print(f"Nodo {nodo.id}: {aristas_salientes}")
-
-
-"""
 import linkedlist
 from algo1 import*
-import re
-"crea un grafo dirigido usando vertex"
 
-class Vertex:
+def Graph(n):
+  G = Array(n,linkedlist.LinkedList())
+  return G
+
+"""primer tipo de grafo con nodos == numero"""
+
+"""
+def createGraph(List,List) 
+Descripción: Implementa la operación crear grafo
+Entrada: LinkedList con la lista de vértices y LinkedList con la lista de aristas donde por cada par de elementos representa una conexión entre dos vértices.
+Salida: retorna el nuevo grafo
+"""
+ 
+"""
+#O(A+V)
+def createGraph(ListV, ListA):
+  n = len(ListV)
+  G = Graph(n)
+  for i in range(0,n):
+    G[i] = linkedlist.LinkedList()
+    linkedlist.add(G[i],ListV[i])
+  for i in ListA:
+    linkedlist.insert(G[i[0]], i[1],1)
+    linkedlist.insert(G[i[1]], i[0],1)
+  return G 
+"""
+
+"""
+#O(V+A)
+def printGraph(G):
+  for i in range(0,len(G)):
+    if G[i] == None:
+      print("[",G[i],"]")
+    else:
+      currentNode = G[i].head
+      while currentNode!= None:
+        print("[",currentNode.value,"] ",end = " ")
+        currentNode = currentNode.nextNode
+      print(" ")
+"""
+
+"""sugundo tipo de grafo con nodos == vertex , elemento == nodos.value"""
+
+class Vertex: #para que sea mas facil inicializar (value,color,etc)
   value = None
   color = None
   d = None
@@ -50,20 +53,27 @@ class Vertex:
 
 def createGraph(ListV, ListA):
   n = len(ListV)
-  G = Array(n,linkedlist.LinkedList())
+  G = Graph(n)
   for i in range(0,n):
     nodo = Vertex()
-    # Extraer solo el entero después de la letra "e"
-    entero = int(re.findall(r'\d+', ListV[i])[0])
-    nodo.value = entero
+    nodo.value = ListV[i]
     G[i] = linkedlist.LinkedList()
     linkedlist.add(G[i],nodo)
-    linkedlist.print_list(G[i])
-
   for i in ListA:
-    entero1 = int(re.findall(r'\d+', i[0])[0])
-    entero2 = int(re.findall(r'\d+', i[1])[0])
-    linkedlist.insert(G[entero1], G[entero2].head.value,1)
-    #linkedlist.insert(GV[i[1]], GV[i[0]].head.value,1)
+    linkedlist.insert(G[i[0]], G[i[1]].head.value,1)
+    linkedlist.insert(G[i[1]], G[i[0]].head.value,1)
   return G
-"""
+
+def printGraph(G):
+  if G == None:
+    return
+  for i in range(0,len(G)):
+    if G[i] == None:
+      print("[",G[i],"]")
+    else:
+      currentNode = G[i].head
+      while currentNode!= None:
+        print("[",currentNode.value.value,"] ",end = " ")
+        currentNode = currentNode.nextNode
+      print(" ")
+      
