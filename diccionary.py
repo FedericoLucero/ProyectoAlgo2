@@ -82,3 +82,4 @@ def printHashtable(Dic):
         print("[",currentNode.value[1],"] ",end = " ")
         currentNode = currentNode.nextNode
       print(" ")
+      
