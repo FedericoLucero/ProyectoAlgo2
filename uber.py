@@ -101,7 +101,6 @@ def create_trip(persona, direccion_elemento):
 
     print(f"Se ha creado un viaje para {persona} hacia {direccion_elemento}")
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-create_map", type=str, help="Crear un mapa utilizando el local_path")
