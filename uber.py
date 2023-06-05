@@ -1,78 +1,103 @@
+import variety_functions
+import graph
+import diccionary
 import argparse
-import pickle
-import re
-info = {}
-grafo = {}
-#
+#import pickle
+#import re
+
+""" 
 def create_map(local_path):
-    """ Código para crear el mapa utilizando el local_path """
+Descripcion: Código para crear el mapa utilizando el local_path
+Herraminetas/Estructuras usadas:
+{ Grafo(Diccionario de Diccionarios),
+  Ubicaciones(Hash Table),
+  ¿Direcciones()?,
+  ¿Distancias_caminos(Diccionario)? }
+""" 
+
+def create_map(local_path):
     
-    archivo = open(local_path) # Abre el archivo en modo lectura ("r")
-    try:
-        linea1 = archivo.readline() # El puntero se actualiza
-        linea2 = archivo.readline() # El puntero se actualiza
-    finally:
-        archivo.close() # Cierra el archivo después de haberlo utilizado
+    line1, line2 = variety_functions.read_lines(local_path)
+    Vertices, Aristas = variety_functions.Create_V_A(line1,line2) # Listas de [vertices] y [Aristas]
 
-    vertices = [v for v in re.findall(r'(e\d+)', linea1)] # Extraer "e" seguido de los dígitos como una cadena de texto
-    
-    valores = re.findall(r'(e\d+),(e\d+),(\d+)', linea2) # Extraer "e" seguido de los dígitos como una cadena de texto en la 3-tupla
-    Aristas = [(v[0], v[1], int(v[2])) for v in valores] # Convertir los valores en una lista de tuplas
+    Grafo = graph.createGraph(Vertices,Aristas) 
+    #graph.printGraph(Grafo)     #eliminar
+    Ubicaciones = diccionary.createDiccionary(26)
+    #diccionary.printHashtable(Ubicaciones)     #eliminar
 
-    for vertice in vertices: # Recorre cada vertice
-        grafo[vertice] = {} # Agregar vertices al grafo
-    
-    for arista in Aristas: # recorre cada arista
-        origen, destino, distancia = arista
-        grafo[origen][destino] = distancia # Agrega aristas al grafo
+    #Direcciones = blabla.create...() # (?????
+    #print(Direcciones)     #eliminar
+    #Distancias_caminos = blabla.create...() # dicicionario de python(?????
+    #print(Distancias_caminos)     #eliminar
 
-    with open("grafo.pickle", "wb") as archivo: # Utiliza "with open" para abrir el archivo en modo de escritura binaria ("wb")
-        pickle.dump(grafo, archivo) # Utilizar pickle para escribir el objeto "grafo" en el archivo
-
-    with open("info.pickle", "wb") as archivo: # Utiliza "with open" para abrir el archivo en modo de escritura binaria ("wb")
-        pickle.dump(info, archivo) # Utilizar pickle para escribir el objeto "info" en el archivo
+    variety_functions.open_file_dump("Grafo.pickle", "wb",Grafo)
+    variety_functions.open_file_dump("Ubicaciones.pickle", "wb",Ubicaciones)
+    #variety_functions.open_file_dump("Direcciones.pickle", "wb",Direcciones)
+    #variety_functions.open_file_dump("Distancias_caminos.pickle", "wb",Distancias_caminos)
 
     print(f"Se ha creado el mapa utilizando el local_path: {local_path}")
-    return grafo
-  
+
+""" 
 def load_fix_element(nombre, direccion):
-    """ Implementa la lógica para cargar un elemento fijo en el mapa utilizcmando <nombre> y <direccion> """
+Descripcion: Codigo para cargar un elemento fijo en el mapa utilizcmando <nombre> y <direccion>
+Herraminetas/Estructuras usadas:
+{ clase(fix_element),
+  Ubicaciones(Hash Table), }
+"""
 
-    valores = re.findall(r'(e\d+),(\d+),(e\d+),(\d+)', direccion)  # Extraee "e" seguido de los dígitos como una cadena de texto 
-    Direccion = [((valores[0][0]), int(valores[0][1])), ((valores[0][2]), int(valores[0][3]))] # Convertir los valores extraídos en una lista de dos tuplas, con el primer elemento como cadena de texto y el segundo como entero
+def load_fix_element(nombre, direccion):
+
+    f_element = variety_functions.fix_element() # clase
+    Direccion = variety_functions.create_address(direccion) # Lista de un par de tuplas [(,),(,)]
     
-    with open("info.pickle", "rb") as f: # Abre el archivo "info.pickle" en modo de lectura binaria ("rb")
-        info = pickle.load(f) # Cargar el contenido del archivo en la variable "info"
+    Ubicaciones = variety_functions.open_file_load("Ubicaciones.pickle","rb") # Carga el contenido del archivo en la variable "Ubicaciones"
+        
+    if variety_functions.check_element(Ubicaciones, nombre) == True: # Serie de condiciones a cumplir
+        f_element.nombre = nombre
+        f_element.direccion = Direccion
+        diccionary.insert(Ubicaciones, nombre, f_element) # insert(Hash Table, key, elemento)
+        
+        variety_functions.open_file_dump("Ubicaciones.pickle","wb",Ubicaciones) # Guarda el contenido de la variable "Ubicaciones" en el archivo
+        print(f"Se ha cargado un elemento fijo {nombre} en el mapa en la dirección {direccion}")
+    else:
+        print(f"El elemento fijo {nombre} ya existe en el mapa en la dirección {direccion}")
+    #diccionary.printHashtable(Ubicaciones)     #eliminar
 
-        if nombre not in info: # Verificar si el nombre no está en el diccionario "info"
-            info[nombre] = Direccion 
-            with open("info.pickle", "wb") as f: # Abrir el archivo "info.pickle" en modo de escritura binaria ("wb")
-                pickle.dump(info, f) # Guardar el diccionario actualizado en el archivo
-
-            print(f"Se ha cargado un elemento fijo {nombre} en el mapa en la dirección {direccion}")
-        else:
-            print(f"El elemento fijo {nombre} ya existe en el mapa en la dirección {direccion}")
+""" 
+def load_movil_element(nombre, direccion, monto):
+Descripcion: Codigo para cargar un elemento movil en el mapa utilizcmando <nombre>, <direccion> y <monto>
+Herraminetas/Estructuras usadas:
+{ clase(fix_element),
+  Ubicaciones(Hash Table), }
+"""
 
 def load_movil_element(nombre, direccion, monto):
-    """ Implementa la lógica para cargar un elemento móvil en el mapa utilizando <nombre>, <direccion> y <monto> """
     
-    valores = re.findall(r'(e\d+),(\d+),(e\d+),(\d+)', direccion)  # Extraee "e" seguido de los dígitos como una cadena de texto 
-    Direccion = [((valores[0][0]), int(valores[0][1])), ((valores[0][2]), int(valores[0][3]))] # Convertir los valores extraídos en una lista de dos tuplas, con el primer elemento como cadena de texto y el segundo como entero
+    m_element = variety_functions.movil_element() # clase
+    Direccion = variety_functions.create_address(direccion) # Lista de un par de tuplas [(,),(,)]
+    
+    Ubicaciones = variety_functions.open_file_load("Ubicaciones.pickle","rb") # Carga el contenido del archivo en la variable "Ubicaciones"
+        
+    if variety_functions.check_element(Ubicaciones,nombre) == True: # Serie de condiciones a cumplir
+        m_element.nombre = nombre
+        m_element.direccion = Direccion
+        m_element.monto = int(monto)
+        diccionary.insert(Ubicaciones,nombre,m_element) # insert(Hash Table, key, elemento)
+        
+        variety_functions.open_file_dump("Ubicaciones.pickle","wb",Ubicaciones) # Guarda el contenido de la variable "Ubicaciones" en el archivo
+        print(f"Se ha cargado un elemento móvil {nombre} en el mapa en la dirección {direccion} con un monto de {monto}")
+    else:
+        print(f"El elemento movil {nombre} ya existe en el mapa, en la dirección {direccion}")
+    #diccionary.printHashtable(Ubicaciones)     #eliminar
 
-    with open("info.pickle", "rb") as f: # Abre el archivo "info.pickle" en modo de lectura binaria ("rb")
-        info = pickle.load(f) # Cargar el contenido del archivo en la variable "info"
-
-        if nombre not in info: # Verificar si el nombre no está en el diccionario "info"
-            info[nombre] = (Direccion,monto) 
-            with open("info.pickle", "wb") as f: # Abrir el archivo "info.pickle" en modo de escritura binaria ("wb")
-                pickle.dump(info, f) # Guarda el diccionario actualizado en el archivo
-
-            print(f"Se ha cargado un elemento móvil {nombre} en el mapa en la dirección {direccion} con un monto de {monto}")
-        else:
-            print(f"El elemento movil {nombre} ya existe en el mapa, en la dirección {direccion}")
+""" 
+def create_trip(persona, direccion_elemento):
+Descripcion: para crear un viaje utilizando <persona> y <direccion_elemento>
+Herraminetas/Estructuras usadas:
+{}
+"""
 
 def create_trip(persona, direccion_elemento):
-    """ Implementa la lógica para crear un viaje utilizando <persona> y <direccion_elemento> """
 
     print(f"Se ha creado un viaje para {persona} hacia {direccion_elemento}")
 

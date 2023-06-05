@@ -1,9 +1,23 @@
 import linkedlist
 from algo1 import*
 
-def Graph(n):
-  G = Array(n,linkedlist.LinkedList())
+"""tercer tipo de grafo con diccionarios"""
+
+def createGraph(ListV,ListA):
+  G = {}
+  for vertice in ListV: # Recorre cada vertice
+    G[vertice] = {} # Agregar vertices al grafo
+      
+  for arista in ListA: # recorre cada arista
+    origen, destino, distancia = arista
+    G[origen][destino] = distancia # Agrega aristas al grafo 
   return G
+
+def printGraph(diccionario):
+  print("{")
+  for clave, valor in diccionario.items():
+      print(f"    '{clave}': {valor},")
+  print("}")
 
 """primer tipo de grafo con nodos == numero"""
 
@@ -18,7 +32,7 @@ Salida: retorna el nuevo grafo
 #O(A+V)
 def createGraph(ListV, ListA):
   n = len(ListV)
-  G = Graph(n)
+  G = Array(n,linkedlist.LinkedList())
   for i in range(0,n):
     G[i] = linkedlist.LinkedList()
     linkedlist.add(G[i],ListV[i])
@@ -44,6 +58,7 @@ def printGraph(G):
 
 """sugundo tipo de grafo con nodos == vertex , elemento == nodos.value"""
 
+"""
 class Vertex: #para que sea mas facil inicializar (value,color,etc)
   value = None
   color = None
@@ -53,15 +68,17 @@ class Vertex: #para que sea mas facil inicializar (value,color,etc)
 
 def createGraph(ListV, ListA):
   n = len(ListV)
-  G = Graph(n)
+  G = Array(n,linkedlist.LinkedList())
   for i in range(0,n):
     nodo = Vertex()
     nodo.value = ListV[i]
     G[i] = linkedlist.LinkedList()
-    linkedlist.add(G[i],nodo)
-  for i in ListA:
-    linkedlist.insert(G[i[0]], G[i[1]].head.value,1)
-    linkedlist.insert(G[i[1]], G[i[0]].head.value,1)
+    linkedlist.add(G[i],(nodo,0)) # ponderado
+
+  for i in ListA: # insert(L,element,posicion)
+    linkedlist.insert(G[i[0]], G[i[1]].head.value,1) # dirigido
+    #linkedlist.insert(G[i[1]], G[i[0]].head.value,1)
+
   return G
 
 def printGraph(G):
@@ -76,3 +93,4 @@ def printGraph(G):
         print("[",currentNode.value.value,"] ",end = " ")
         currentNode = currentNode.nextNode
       print(" ")
+"""
