@@ -16,7 +16,7 @@ def createGraph(ListV,ListA):
 def printGraph(diccionario):
   print("{")
   for clave, valor in diccionario.items():
-      print(f"    '{clave}': {valor},")
+    print(f"    '{clave}': {valor},")
   print("}")
 
 """primer tipo de grafo con nodos == numero"""
