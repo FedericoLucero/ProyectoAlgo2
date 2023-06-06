@@ -64,7 +64,7 @@ Salidas:
 """
 
 def check_element(Ubicaciones,nombre):
-    if diccionary.search(Ubicaciones,nombre) == None: # verifica si ya existe el nombre
+    if diccionary.search(Ubicaciones,nombre) == None: # verifica si ya existe el nombre, if == None, no existe
         #if verificar que la direccion no este ocupada
             #if verificar que la direccion no tenga errores de dsitancia
                 #if verifica que la direccion sea existente
