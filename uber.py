@@ -98,7 +98,8 @@ Herraminetas/Estructuras usadas:
 """
 
 def create_trip(persona, direccion_elemento):
-
+    #chequear que la persona exista
+    #chequear si ha ingresado una direccion {(ex,int),(ey,int)} o un elemento ej: H1
     print(f"Se ha creado un viaje para {persona} hacia {direccion_elemento}")
 
 if __name__ == "__main__":
