@@ -38,8 +38,8 @@ def create_map(local_path):
     uberMap =  variety_functions.create_map_dictionary(Vertices,Aristas)
 
             
-    variety_functions.open_file_dump("Grafo.pickle", "wb",Grafo)
-    variety_functions.open_file_dump("Ubicaciones.pickle", "wb",Ubicaciones)
+    # variety_functions.open_file_dump("Grafo.pickle", "wb",Grafo)
+    # variety_functions.open_file_dump("Ubicaciones.pickle", "wb",Ubicaciones)
     #variety_functions.open_file_dump("Direcciones.pickle", "wb",Direcciones)
     #variety_functions.open_file_dump("Distancias_caminos.pickle", "wb",Distancias_caminos)
 
