@@ -26,9 +26,9 @@ def create_map(local_path):
     line1, line2 = variety_functions.read_lines(local_path)
     Vertices, Aristas = variety_functions.Create_V_A(line1,line2) # Listas de [vertices] y [Aristas]
 
-    Grafo = graph.createGraph(Vertices,Aristas) 
+    #Grafo = graph.createGraph(Vertices,Aristas) 
     #graph.printGraph(Grafo)     #eliminar
-    Ubicaciones = diccionary.createDiccionary(26)
+    #Ubicaciones = diccionary.createDiccionary(26)
     #diccionary.printHashtable(Ubicaciones)     #eliminar
 
     #Direcciones = blabla.create...() # (?????
