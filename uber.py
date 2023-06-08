@@ -15,6 +15,12 @@ Herraminetas/Estructuras usadas:
   ¿Distancias_caminos(Diccionario)? }
 """ 
 
+import pickle
+import re
+import domain
+info = {}
+grafo = {}
+#
 def create_map(local_path):
     
     line1, line2 = variety_functions.read_lines(local_path)
@@ -29,6 +35,7 @@ def create_map(local_path):
     #print(Direcciones)     #eliminar
     #Distancias_caminos = blabla.create...() # dicicionario de python(?????
     #print(Distancias_caminos)     #eliminar
+
 
     variety_functions.open_file_dump("Grafo.pickle", "wb",Grafo)
     variety_functions.open_file_dump("Ubicaciones.pickle", "wb",Ubicaciones)
@@ -118,3 +125,6 @@ if __name__ == "__main__":
         load_movil_element(*args.load_movil_element)
     if args.create_trip:
         create_trip(*args.create_trip)
+        
+
+    create_map("local_path_original.txt")
