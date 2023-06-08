@@ -35,8 +35,9 @@ def create_map(local_path):
     #print(Direcciones)     #eliminar
     #Distancias_caminos = blabla.create...() # dicicionario de python(?????
     #print(Distancias_caminos)     #eliminar
+    uberMap =  variety_functions.create_map_dictionary(Vertices,Aristas)
 
-
+            
     variety_functions.open_file_dump("Grafo.pickle", "wb",Grafo)
     variety_functions.open_file_dump("Ubicaciones.pickle", "wb",Ubicaciones)
     #variety_functions.open_file_dump("Direcciones.pickle", "wb",Direcciones)
