@@ -1,9 +1,9 @@
 import variety_functions
-import graph
 import diccionary
 import argparse
-#import pickle
-#import re
+import domain
+
+grafo = dict() #definimos la variable grafo para la persistencia de los datos
 
 """ 
 def create_map(local_path):
@@ -14,12 +14,6 @@ Herraminetas/Estructuras usadas:
   ¿Direcciones()?,
   ¿Distancias_caminos(Diccionario)? }
 """ 
-
-import pickle
-import re
-import domain
-info = {}
-grafo = {}
 #
 def create_map(local_path):
     
@@ -36,14 +30,17 @@ def create_map(local_path):
     #Distancias_caminos = blabla.create...() # dicicionario de python(?????
     #print(Distancias_caminos)     #eliminar
     uberMap =  variety_functions.create_map_dictionary(Vertices,Aristas)
-
+    grafo = uberMap
             
     # variety_functions.open_file_dump("Grafo.pickle", "wb",Grafo)
     # variety_functions.open_file_dump("Ubicaciones.pickle", "wb",Ubicaciones)
     #variety_functions.open_file_dump("Direcciones.pickle", "wb",Direcciones)
     #variety_functions.open_file_dump("Distancias_caminos.pickle", "wb",Distancias_caminos)
-
-    print(f"Se ha creado el mapa utilizando el local_path: {local_path}")
+    if uberMap != None:
+        print("map created successfully")
+    else:
+        print("ocurrio un error creando el mapa")
+        
 
 """ 
 def load_fix_element(nombre, direccion):

@@ -93,24 +93,24 @@ def open_file_dump(archivo,modo,variable):
         
         
 def create_map_dictionary(Vertices,Aristas):
-    uberMap = dict() #defino el objeto como un dict vacio para poder acceder luego a todos los vertices -P
-    for vertice in Vertices: # Recorre cada vertice -F 
-        grafo[vertice] = {} # Agregar vertices al grafo -F
-        uberMap[vertice] = dict() #Defino cada vertice como un diccionario vacio para que  luego pueda acceder a "[origen][destino]" -P
+    uberMap = dict() #defino el objeto como un dict vacio para poder acceder luego a todos los vertices 
+    for vertice in Vertices: # Recorre cada vertice  
+        grafo[vertice] = {} # Agregar vertices al grafo 
+        uberMap[vertice] = dict() #Defino cada vertice como un diccionario vacio para que  luego pueda acceder a "[origen][destino]" 
         
-    for arista in Aristas: # recorre cada arista -F 
+    for arista in Aristas: # recorre cada arista  
         origen, destino, distancia = arista
-        grafo[origen][destino] = distancia # Agrega aristas al grafo -F 
-        newAddress = domain.Distance() #Genera objeto de tipo Distance -P
-        newAddress.Distance=distancia #asigna el valor de distancia de la arista al dicho objeto -P 
-        uberMap[origen][destino] = newAddress #genera  en la estuctura "ubermap" la arista correspondiente con las aristas "directas" -P
+        grafo[origen][destino] = distancia # Agrega aristas al grafo  
+        newAddress = domain.Distance() #Genera objeto de tipo Distance 
+        newAddress.Distance=distancia #asigna el valor de distancia de la arista al dicho objeto  
+        uberMap[origen][destino] = newAddress #genera  en la estuctura "ubermap" la arista correspondiente con las aristas "directas" 
         
     for origin in uberMap: #recorre todos los vertices originales
         for newOrigin in uberMap: #por cada vez que se recorren arriba, los vuelve a recorrer para conectarlos y con ellos recorrer las subconecciones
             if newOrigin == origin:
                 continue
             try:
-                baseCon = uberMap[newOrigin][origin] #Intenta acceder a la una conexion posible entre 2 vertices A y B, de no existir, dispara except -P
+                baseCon = uberMap[newOrigin][origin] #Intenta acceder a la una conexion posible entre 2 vertices A y B, de no existir, dispara except 
                 nextNode = baseCon.NearNodeInWay #Guarda el nodo mas cercao de la conexion si es que existiese
                 if nextNode == None:
                     nextNode = origin #de no existir, quiere decir que es un arista directa entre 2 vertices, por lo que el "proximo nodo" va a ser el nodo B
