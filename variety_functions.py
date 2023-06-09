@@ -1,6 +1,7 @@
 from uber import*
 import pickle
 import re
+import domain
 
 """
 Clases
@@ -51,6 +52,7 @@ Salidas:
 """
 
 def create_address(direccion):
+    direccion = re.sub('[><}{]',"",direccion)
     valores = re.findall(r'(e\d+),(\d+),(e\d+),(\d+)', direccion)  # Extrae "e" seguido de los dígitos como una cadena de texto 
     Direccion = [((valores[0][0]), int(valores[0][1])), ((valores[0][2]), int(valores[0][3]))] # Convertir los valores extraídos en una lista de dos tuplas, con el primer elemento como cadena de texto y el segundo como entero
     return Direccion
@@ -63,13 +65,26 @@ Salidas:
   False = NO cumple al menos una condicon }
 """
 
-def check_element(Ubicaciones,nombre):
-    if diccionary.search(Ubicaciones,nombre) == None: # verifica si ya existe el nombre, if == None, no existe
-        #if verificar que la direccion no este ocupada
-            #if verificar que la direccion no tenga errores de dsitancia
-                #if verifica que la direccion sea existente
-                    return True
-    return False
+def check_element(ubicationName,element,uberMap,ubications):
+    corner1 = element.Address.CornerOrigin
+    corner2 = element.Address.CornerDestiny
+    
+    try:
+        mapNode = uberMap[corner1.Name][corner2.Name]
+        if mapNode.NearNodeInWay != None:
+            return "La direccion para la ubicacion no es posible ya que las esquinas plantedas no tienen una conexion directa" 
+    except:
+        return "La direccion para la ubicacion no es posible ya que las esquinas plantedas no tienen una conexion directa"
+    
+    if mapNode.Distance != corner1.DistantTo+corner2.DistantTo:
+        return "La direccion para la ubicacion no es posible ya que las distancias no son adecuadas"
+
+    try:
+        ubications[ubicationName]
+        return "La ubicacion con ese nombre ya fue creada"
+    except:
+        return None
+        
 
 """ 
 def open_file_load(archivo,modo):
@@ -135,3 +150,49 @@ def print_all_nodes(uberMap):
     for o in uberMap:
         for d in  uberMap[o]:
             print("origen",o,"destino",d,"costo",uberMap[o][d].Distance, "nextNode",uberMap[o][d].NearNodeInWay)
+            
+            
+def load_fix_element(fixElement, uberMap,localFixUbications,ubicationName):
+    
+    error = check_element(ubicationName,fixElement,uberMap,localFixUbications)
+    if error != None:
+        return error
+    
+    localFixUbications[ubicationName]=fixElement
+    
+    
+    d = domain.Distance()
+    origin = fixElement.Address.CornerOrigin
+    basicDistance= origin.DistantTo
+    d.NearNodeInWay=None
+    d.Distance=basicDistance
+    uberMap[origin.Name][ubicationName] = d
+    
+    for newOrigin in uberMap:
+        if newOrigin == origin.Name:
+            continue
+        
+        try:
+            uberMap[newOrigin][origin.Name]
+            newConnection = domain.Distance()
+            newConnection.NearNodeInWay=uberMap[newOrigin][origin.Name].NearNodeInWay
+            newConnection.Distance = basicDistance+uberMap[newOrigin][origin.Name].Distance
+            uberMap[newOrigin][ubicationName] = newConnection
+        except:
+            continue
+    
+    global grafo
+    grafo = uberMap
+    
+    global fixUbications
+    fixUbications=localFixUbications
+    
+def print_ubications(fixUbications):
+    for ubi in fixUbications:
+        cornerOrigin = fixUbications[ubi].Address.CornerOrigin
+        cornerDestiny = fixUbications[ubi].Address.CornerDestiny
+        print("<",cornerOrigin.Name,">","_____",cornerOrigin.DistantTo,"_____","[",ubi,"]","_____",cornerDestiny.DistantTo,"_____","<",cornerDestiny.Name,">", end="")
+        try:
+            print(fixUbications[ubi].Amount)
+        except:
+            print("")

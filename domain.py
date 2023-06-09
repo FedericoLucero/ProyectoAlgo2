@@ -2,18 +2,17 @@ class Distance:
     Distance = None #int
     NearNodeInWay = None #str
     
-class Address:
-   Corner1 = None  #(CornerOrigin)
-   Corner2 = None  #(CornerDestiny)
 
 class Corner:
    Name = None #str
    DistantTo = None #int
    
+class Address:
+   CornerOrigin = Corner  #(CornerOrigin)
+   CornerDestiny = Corner  #(CornerDestiny)
 
 class FixUbication:
-    Address = None #tipo clase Address
-    Amount = None #int
+    Address = Address #tipo clase Address
     
 class MobileUbication:
     Address = None #tipo clase Address

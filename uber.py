@@ -5,6 +5,7 @@ import domain
 
 grafo = dict() #definimos la variable grafo para la persistencia de los datos
 
+fixUbications = dict()
 """ 
 def create_map(local_path):
 Descripcion: Código para crear el mapa utilizando el local_path
@@ -30,6 +31,7 @@ def create_map(local_path):
     #Distancias_caminos = blabla.create...() # dicicionario de python(?????
     #print(Distancias_caminos)     #eliminar
     uberMap =  variety_functions.create_map_dictionary(Vertices,Aristas)
+    global grafo
     grafo = uberMap
             
     # variety_functions.open_file_dump("Grafo.pickle", "wb",Grafo)
@@ -51,21 +53,35 @@ Herraminetas/Estructuras usadas:
 """
 
 def load_fix_element(nombre, direccion):
+    
+    global grafo
+    global fixUbications
 
-    f_element = variety_functions.fix_element() # clase
     Direccion = variety_functions.create_address(direccion) # Lista de un par de tuplas [(,),(,)]
     
-    Ubicaciones = variety_functions.open_file_load("Ubicaciones.pickle","rb") # Carga el contenido del archivo en la variable "Ubicaciones"
-        
-    if variety_functions.check_element(Ubicaciones, nombre) == True: # Serie de condiciones a cumplir
-        f_element.nombre = nombre
-        f_element.direccion = Direccion
-        diccionary.insert(Ubicaciones, nombre, f_element) # insert(Hash Table, key, elemento)
-        
-        variety_functions.open_file_dump("Ubicaciones.pickle","wb",Ubicaciones) # Guarda el contenido de la variable "Ubicaciones" en el archivo
-        print(f"Se ha cargado un elemento fijo {nombre} en el mapa en la dirección {direccion}")
-    else:
-        print(f"El elemento fijo {nombre} ya existe en el mapa en la dirección {direccion}")
+    fixElement = domain.FixUbication()
+    
+    address = domain.Address()
+    
+    cornerOrigin = domain.Corner()
+    cornerDestiny = domain.Corner()
+    
+    cornerOrigin.Name = Direccion[0][0]
+    cornerOrigin.DistantTo = Direccion[0][1]
+    
+    cornerDestiny.Name = Direccion[1][0]
+    cornerDestiny.DistantTo = Direccion[1][1]
+    
+    address.CornerDestiny = cornerDestiny 
+    address.CornerOrigin = cornerOrigin
+    
+    fixElement.Address=address
+
+    error = variety_functions.load_fix_element(fixElement,grafo,fixUbications,nombre)
+    variety_functions.print_all_nodes(grafo)
+    print("loading:",nombre,error)
+    variety_functions.print_ubications(fixUbications)
+    #Ubicaciones = variety_functions.open_file_load("Ubicaciones.pickle","rb") # Carga el contenido del archivo en la variable "Ubicaciones"
     #diccionary.printHashtable(Ubicaciones)     #eliminar
 
 """ 
@@ -124,5 +140,3 @@ if __name__ == "__main__":
     if args.create_trip:
         create_trip(*args.create_trip)
         
-
-    create_map("local_path_original.txt")
