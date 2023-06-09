@@ -90,3 +90,48 @@ Descripcion: guarda el contenido de la variable en el archivo
 def open_file_dump(archivo,modo,variable):
     with open(archivo, modo) as f: # Abrir el archivo en modo de escritura
         pickle.dump(variable, f) # Guardar el contenido en el archivo
+        
+        
+def create_map_dictionary(Vertices,Aristas):
+    uberMap = dict() #defino el objeto como un dict vacio para poder acceder luego a todos los vertices 
+    for vertice in Vertices: # Recorre cada vertice  
+        grafo[vertice] = {} # Agregar vertices al grafo 
+        uberMap[vertice] = dict() #Defino cada vertice como un diccionario vacio para que  luego pueda acceder a "[origen][destino]" 
+        
+    for arista in Aristas: # recorre cada arista  
+        origen, destino, distancia = arista
+        grafo[origen][destino] = distancia # Agrega aristas al grafo  
+        newAddress = domain.Distance() #Genera objeto de tipo Distance 
+        newAddress.Distance=distancia #asigna el valor de distancia de la arista al dicho objeto  
+        uberMap[origen][destino] = newAddress #genera  en la estuctura "ubermap" la arista correspondiente con las aristas "directas" 
+        
+    for origin in uberMap: #recorre todos los vertices originales
+        for newOrigin in uberMap: #por cada vez que se recorren arriba, los vuelve a recorrer para conectarlos y con ellos recorrer las subconecciones
+            if newOrigin == origin:
+                continue
+            try:
+                baseCon = uberMap[newOrigin][origin] #Intenta acceder a la una conexion posible entre 2 vertices A y B, de no existir, dispara except 
+                nextNode = baseCon.NearNodeInWay #Guarda el nodo mas cercao de la conexion si es que existiese
+                if nextNode == None:
+                    nextNode = origin #de no existir, quiere decir que es un arista directa entre 2 vertices, por lo que el "proximo nodo" va a ser el nodo B
+                #Si llega a este punto del codigo, quiere decir que existe una conexion entre A y B
+                for newDest in uberMap[origin]: # por lo que recorro el dict de B para acceder a sus aristas y poder crear las mismas en el diccionario del vertice B
+                    newDistance = baseCon.Distance + uberMap[origin][newDest].Distance #la distancia base que va a tener la nueva conexion va a ser, la distancia entre A y B y la distancia entre B y cada nodo X en su DICT
+                    try:
+                        existingCon = uberMap[newOrigin][newDest] #Intento acceder a una conexion previa entre el nodo A y X, de no existir, voy a exec
+                        if existingCon.Distance > newDistance: #De existir una conexion, analizo si la nueva conexion que quiero crear tiene menos costo que la que ya existia
+                            uberMap[newOrigin][newDest].NearNodeInWay = nextNode #si tiene menos costo, accedo a esa dicha direccion
+                            uberMap[newOrigin][newDest].Distance = newDistance
+                    except:
+                        linkedAddress = domain.Distance() #Creo una nueva conexion con los datos encontrados anteriormente
+                        linkedAddress.Distance = newDistance 
+                        linkedAddress.NearNodeInWay = nextNode
+                        uberMap[newOrigin][newDest] = linkedAddress  #Ahora existe una nueva conexion (directa o no) entre A y X con distancia "newDistance" y "nextNode" de proximo nodo
+            except:
+                continue
+    return uberMap
+
+def print_all_nodes(uberMap):
+    for o in uberMap:
+        for d in  uberMap[o]:
+            print("origen",o,"destino",d,"costo",uberMap[o][d].Distance, "nextNode",uberMap[o][d].NearNodeInWay)

@@ -1,9 +1,9 @@
 import variety_functions
-import graph
 import diccionary
 import argparse
-#import pickle
-#import re
+import domain
+
+grafo = dict() #definimos la variable grafo para la persistencia de los datos
 
 """ 
 def create_map(local_path):
@@ -14,28 +14,33 @@ Herraminetas/Estructuras usadas:
   ¿Direcciones()?,
   ¿Distancias_caminos(Diccionario)? }
 """ 
-
+#
 def create_map(local_path):
     
     line1, line2 = variety_functions.read_lines(local_path)
     Vertices, Aristas = variety_functions.Create_V_A(line1,line2) # Listas de [vertices] y [Aristas]
 
-    Grafo = graph.createGraph(Vertices,Aristas) 
+    #Grafo = graph.createGraph(Vertices,Aristas) 
     #graph.printGraph(Grafo)     #eliminar
-    Ubicaciones = diccionary.createDiccionary(26)
+    #Ubicaciones = diccionary.createDiccionary(26)
     #diccionary.printHashtable(Ubicaciones)     #eliminar
 
     #Direcciones = blabla.create...() # (?????
     #print(Direcciones)     #eliminar
     #Distancias_caminos = blabla.create...() # dicicionario de python(?????
     #print(Distancias_caminos)     #eliminar
-
-    variety_functions.open_file_dump("Grafo.pickle", "wb",Grafo)
-    variety_functions.open_file_dump("Ubicaciones.pickle", "wb",Ubicaciones)
+    uberMap =  variety_functions.create_map_dictionary(Vertices,Aristas)
+    grafo = uberMap
+            
+    # variety_functions.open_file_dump("Grafo.pickle", "wb",Grafo)
+    # variety_functions.open_file_dump("Ubicaciones.pickle", "wb",Ubicaciones)
     #variety_functions.open_file_dump("Direcciones.pickle", "wb",Direcciones)
     #variety_functions.open_file_dump("Distancias_caminos.pickle", "wb",Distancias_caminos)
-
-    print(f"Se ha creado el mapa utilizando el local_path: {local_path}")
+    if uberMap != None:
+        print("map created successfully")
+    else:
+        print("ocurrio un error creando el mapa")
+        
 
 """ 
 def load_fix_element(nombre, direccion):
@@ -118,3 +123,6 @@ if __name__ == "__main__":
         load_movil_element(*args.load_movil_element)
     if args.create_trip:
         create_trip(*args.create_trip)
+        
+
+    create_map("local_path_original.txt")
