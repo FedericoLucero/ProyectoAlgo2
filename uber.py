@@ -29,14 +29,16 @@ def create_map(local_path):
     #print(Direcciones)     #eliminar
     #Distancias_caminos = blabla.create...() # dicicionario de python(?????
     #print(Distancias_caminos)     #eliminar
-    uberMap =  variety_functions.create_map_dictionary(Vertices,Aristas)
-    grafo = uberMap
-            
-    # variety_functions.open_file_dump("Grafo.pickle", "wb",Grafo)
+    uberMap = variety_functions.create_map_dictionary(Vertices,Aristas)
+    ubications = dict()
+
+    variety_functions.open_file_dump("uberMap.pickle", "wb",uberMap)
+    variety_functions.open_file_dump("ubications.pickle", "wb",ubications)
     # variety_functions.open_file_dump("Ubicaciones.pickle", "wb",Ubicaciones)
     #variety_functions.open_file_dump("Direcciones.pickle", "wb",Direcciones)
     #variety_functions.open_file_dump("Distancias_caminos.pickle", "wb",Distancias_caminos)
     if uberMap != None:
+        #variety_functions.print_all_nodes(uberMap)
         print("map created successfully")
     else:
         print("ocurrio un error creando el mapa")
@@ -77,23 +79,43 @@ Herraminetas/Estructuras usadas:
 """
 
 def load_movil_element(nombre, direccion, monto):
-    
-    m_element = variety_functions.movil_element() # clase
+    ubicationName = nombre
     Direccion = variety_functions.create_address(direccion) # Lista de un par de tuplas [(,),(,)]
+
+    element = domain.MobileUbication() # clase
+    element.Amount = int(monto)
+
+    cornerOrigin = domain.Corner()
+    cornerDestiny = domain.Corner()
+
+    cornerOrigin.Name = Direccion[0][0]
+    cornerOrigin.DistantTo = Direccion[0][1]
     
-    Ubicaciones = variety_functions.open_file_load("Ubicaciones.pickle","rb") # Carga el contenido del archivo en la variable "Ubicaciones"
-        
-    if variety_functions.check_element(Ubicaciones,nombre) == True: # Serie de condiciones a cumplir
-        m_element.nombre = nombre
-        m_element.direccion = Direccion
-        m_element.monto = int(monto)
-        diccionary.insert(Ubicaciones,nombre,m_element) # insert(Hash Table, key, elemento)
-        
-        variety_functions.open_file_dump("Ubicaciones.pickle","wb",Ubicaciones) # Guarda el contenido de la variable "Ubicaciones" en el archivo
+    cornerDestiny.Name = Direccion[1][0]
+    cornerDestiny.DistantTo = Direccion[1][1]
+
+    Address = domain.Address()
+    Address.CornerOrigin = cornerOrigin
+    Address.CornerDestiny = cornerDestiny
+
+    element.Address = Address
+
+    uberMap = variety_functions.open_file_load("uberMap.pickle","rb") # Carga el contenido del archivo en la variable "uberMap"
+    variety_functions.print_all_nodes(uberMap)
+    
+    ubications = variety_functions.open_file_load("ubications.pickle","rb") # Carga el contenido del archivo en la variable "ubications"
+    
+    print(variety_functions.check_element(ubicationName, element, uberMap, ubications))
+
+    if variety_functions.check_element(ubicationName, element, uberMap, ubications) == None: # Serie de condiciones a cumplir
+        ubications[nombre] = element
+        variety_functions.open_file_dump("ubications.pickle","wb",ubications) # Guarda el contenido de la variable "Ubicaciones" en el archivo
         print(f"Se ha cargado un elemento móvil {nombre} en el mapa en la dirección {direccion} con un monto de {monto}")
-    else:
-        print(f"El elemento movil {nombre} ya existe en el mapa, en la dirección {direccion}")
+ 
     #diccionary.printHashtable(Ubicaciones)     #eliminar
+
+#def load_movil(mobilElement: domain.mobilUbication, uberMap: dict(),mobilUbications: dict()):
+  #print("a")
 
 """ 
 def create_trip(persona, direccion_elemento):
@@ -126,3 +148,4 @@ if __name__ == "__main__":
         
 
     create_map("local_path_original.txt")
+    load_movil_element("P1","e3,3,e4,3", 1000)
