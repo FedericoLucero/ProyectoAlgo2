@@ -12,7 +12,7 @@ class Corner:
 
 class FixUbication:
   Address = None  #tipo clase Address
-
+  
 class MobileUbication:
   Address = None  #tipo clase Address
   Amount = None  #int
