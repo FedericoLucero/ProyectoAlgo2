@@ -176,6 +176,8 @@ def load_fix_element(fixElement, uberMap,localFixUbications,ubicationName):
             uberMap[newOrigin][origin.Name]
             newConnection = domain.Distance()
             newConnection.NearNodeInWay=uberMap[newOrigin][origin.Name].NearNodeInWay
+            if newConnection.NearNodeInWay== None:
+                newConnection.NearNodeInWay = origin.Name
             newConnection.Distance = basicDistance+uberMap[newOrigin][origin.Name].Distance
             uberMap[newOrigin][ubicationName] = newConnection
         except:
@@ -196,3 +198,107 @@ def print_ubications(fixUbications):
             print(fixUbications[ubi].Amount)
         except:
             print("")
+            
+
+def check_person_action(personName:str,mobileUbis:dict(),uberMap: dict(),destiny: str):
+
+    try:
+        person =  mobileUbis[personName]
+    except:
+        return "La persona ingresada no existe"
+    
+    cornerDestiny = person.Address.CornerDestiny
+    
+    try:
+        uberMap[cornerDestiny.Name][destiny]
+    except:
+        return "La persona ingresada es incapaz de llegar a ese punto"
+    
+    return None
+    
+def find_nearests_3cars(personName:str,mobileUbis:dict(),uberMap: dict()):
+    
+
+    person =  mobileUbis[personName]
+    
+    personOrigin = person.Address.CornerOrigin
+    
+    cars =[]
+    
+    for mobile in mobileUbis:
+        if mobile[0] != "C":
+            continue
+        car = mobileUbis[mobile]
+        carDestiny = car.Address.CornerDestiny
+        try:
+            d = domain.Distance()
+            if carDestiny.Name==personOrigin.Name:
+                d.Distance=0
+            else:
+                d =uberMap[carDestiny.Name][personOrigin.Name]
+        except:
+            continue
+        
+        tripAmount = (d.Distance+car.Amount)/4 
+        if tripAmount>person.Amount:
+            continue
+        if len(cars)<3:
+            cars.append((mobile,tripAmount))
+        else:
+            maxAmountIndex = 0
+            maxValue = 0
+            for i in range(0,len(cars)):
+                if cars[i][1]>maxValue:
+                    maxValue=cars[i][1]
+                    maxAmountIndex = i
+            if tripAmount < maxAmountIndex:
+                cars[maxAmountIndex]=(mobile,tripAmount)
+                
+    return cars[0:3]
+
+def find_path(uberMap:dict(),origin: str,destiny:str):
+    
+    path = []
+    
+    nextNode = origin
+        
+    while nextNode != None:
+        nextNode = uberMap[nextNode][destiny].NearNodeInWay
+        if nextNode != None:
+            path.append(nextNode)
+        
+    path.append(destiny)
+    
+    return path
+
+
+def move_mobile_elements(mobileUbis:dict(),personName: str, carName:str,amount:int,destiny:str,fixUbi:dict()):
+    
+    mobileUbis[personName].Amount -= amount
+    
+    try:
+        destUbi = fixUbi[destiny]
+        newAddress = domain.Address()
+        newAddress.CornerDestiny = destUbi.Address.CornerDestiny
+        newAddress.CornerOrigin = destUbi.Address.CornerOrigin
+    except:
+        destUbi = create_address(destiny)
+        cornerOrigin = domain.Corner()
+        cornerDestiny = domain.Corner()
+
+        cornerOrigin.Name = destUbi[0][0]
+        cornerOrigin.DistantTo = destUbi[0][1]
+        
+        cornerDestiny.Name = destUbi[1][0]
+        cornerDestiny.DistantTo = destUbi[1][1]
+
+        newAddress = domain.Address()
+        newAddress.CornerOrigin = cornerOrigin
+        newAddress.CornerDestiny = cornerDestiny
+    
+    mobileUbis[personName].Address = newAddress
+    mobileUbis[carName].Address=newAddress
+    
+    global mobileUbications
+    mobileUbications = mobileUbis
+    
