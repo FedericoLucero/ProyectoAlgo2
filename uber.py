@@ -23,6 +23,9 @@ def create_map(local_path):
     line1, line2 = variety_functions.read_lines(local_path)
     Vertices, Aristas = variety_functions.Create_V_A(line1,line2) # Listas de [vertices] y [Aristas]
 
+    variety_functions.open_file_dump("Vertices.pickle", "wb",Vertices)
+    variety_functions.open_file_dump("Aristas.pickle", "wb",Aristas)
+
     #Grafo = graph.createGraph(Vertices,Aristas) 
     #graph.printGraph(Grafo)     #eliminar
     #Ubicaciones = diccionary.createDiccionary(26)
@@ -84,8 +87,13 @@ def load_fix_element(nombre, direccion):
     address.CornerOrigin = cornerOrigin
     
     fixElement.Address=address
+    #line1, line2 = variety_functions.read_lines("local_path_original.txt")#esto se cambia por el picke
+    #Vertices, Aristas = variety_functions.Create_V_A(line1,line2) #esto se cambia por el picke
 
-    error = variety_functions.load_fix_element(fixElement,grafo,fixUbications,nombre)
+    Vertices = variety_functions.open_file_load("Vertices.pickle","rb")
+    Aristas = variety_functions.open_file_load("Aristas.pickle","rb")
+
+    error = variety_functions.load_fix_element(fixElement,grafo,fixUbications,nombre,Aristas)
     print("loading:",nombre,error)
     variety_functions.print_all_nodes(grafo)
     variety_functions.print_ubications(fixUbications)
@@ -123,14 +131,20 @@ def load_movil_element(nombre, direccion, monto):
     element.Address = Address
 
     uberMap = variety_functions.open_file_load("uberMap.pickle","rb") # Carga el contenido del archivo en la variable "uberMap"
-    
     ubications = variety_functions.open_file_load("ubications.pickle","rb") # Carga el contenido del archivo en la variable "ubications"
+    
     global mobileUbications
     ubications = mobileUbications
-    print(variety_functions.check_element(ubicationName, element, uberMap, ubications))
 
+    #line1, line2 = variety_functions.read_lines("local_path_original.txt") #esto se cambia por el picke
+    #Vertices, Aristas = variety_functions.Create_V_A(line1,line2) #esto se cambia por el picke
 
-    if variety_functions.check_element(ubicationName, element, uberMap, ubications) == None: # Serie de condiciones a cumplir
+    Vertices = variety_functions.open_file_load("Vertices.pickle","rb")
+    Aristas = variety_functions.open_file_load("Aristas.pickle","rb")
+
+    print(variety_functions.check_element(ubicationName, element, Aristas, ubications))
+
+    if variety_functions.check_element(ubicationName, element, Aristas, ubications) == None: # Serie de condiciones a cumplir
         ubications[nombre] = element   
         mobileUbications = ubications
         variety_functions.open_file_dump("ubications.pickle","wb",ubications) # Guarda el contenido de la variable "Ubicaciones" en el archivo
@@ -204,6 +218,7 @@ if __name__ == "__main__":
     load_fix_element( "A1", "<e12,1>,<e16,5>")
     load_fix_element( "T5", "<e1,10>,<e5,0>")
     load_fix_element( "S10", "<e9,2>,<e10,2>")
+    load_fix_element( "SF2", "<e3,2>,<e11,2>")
     
 
     load_movil_element("P1", "<e10,4>,<e11,4>", "2000")
