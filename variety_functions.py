@@ -3,25 +3,17 @@ import pickle
 import re
 import domain
 
-"""
-Clases
-"""
-
-class fix_element():
-    nombre = None
-    direccion = None
-
-class movil_element():
-    nombre = None
-    direccion = None
-    monto = None
-
 """ 
 def read_lines(local_path):
 Descripcion: lee la linea 1 y 2 del local_path devolviendo dos strings
+Entrada: local_path.txt
+Salida:
+{"ex,ey,ez,..."
+"{<ex,ey,int>,<ey,ex,int>,<ez,ew,int>..."}
 """
+
 def read_lines(local_path):
-    archive = open(local_path) # Abre el archivo en modo lectura ("r")
+    archive = open(local_path) # Abre el archi, vo en modo lectura ("r")
     try:
         line1 = archive.readline()
         line2 = archive.readline()
@@ -32,7 +24,7 @@ def read_lines(local_path):
 """ 
 def Create_V_A(line1,line2):
 Descripcion: lee los strings linea 1 y 2 convirtiendolos en dos listas
-Salidas: 
+Salidas:
 { Vertices = ["ex","ey","ez",...],
   Aristas = [("ex","ey",int),...] }
 """
@@ -52,17 +44,15 @@ Salidas:
 """
 
 def create_address(direccion):
-    direccion = re.sub('[><}{]',"",direccion)
-    valores = re.findall(r'(e\d+),(\d+),(e\d+),(\d+)', direccion)  # Extrae "e" seguido de los dígitos como una cadena de texto 
+    direccion = re.sub(r"\{|\}|\[|\]|,", " ", direccion)
+    valores = re.findall(r'<(e\d+) (\d+)> <(e\d+) (\d+)>', direccion)  # Extrae "e" seguido de los dígitos como una cadena de texto
     Direccion = [((valores[0][0]), int(valores[0][1])), ((valores[0][2]), int(valores[0][3]))] # Convertir los valores extraídos en una lista de dos tuplas, con el primer elemento como cadena de texto y el segundo como entero
     return Direccion
 
 """ 
 def check_element(Ubicaciones,nombre):
-Descripcion: comprueba una serie de condiciones para insertar el valor en el hash table
-Salidas: 
-{ True = cumple todas las condicones ,
-  False = NO cumple al menos una condicon }
+Descripcion: comprueba una serie de condiciones para validar el elemento ingresado
+Salidas: str: error, None
 """
 
 def check_element(ubicationName,element,aristas,ubications):
@@ -87,7 +77,6 @@ def check_element(ubicationName,element,aristas,ubications):
         return "La ubicacion con ese nombre ya fue creada"
     except:
         return None
-        
 
 """ 
 def open_file_load(archivo,modo):
@@ -109,6 +98,12 @@ def open_file_dump(archivo,modo,variable):
     with open(archivo, modo) as f: # Abrir el archivo en modo de escritura
         pickle.dump(variable, f) # Guardar el contenido en el archivo
         
+""" 
+def create_map_dictionary(Vertices,Aristas):
+Descripcion: crea un diccionary de python de diccionary de python
+Entrada: Vertices:list, Aristas:list
+Salida: uberMap: dict()
+"""
         
 def create_map_dictionary(Vertices,Aristas):
     uberMap = dict() #defino el objeto como un dict vacio para poder acceder luego a todos los vertices 
@@ -149,26 +144,37 @@ def create_map_dictionary(Vertices,Aristas):
                 continue
     return uberMap
 
+""" 
+def print_all_nodes(uberMap):
+Descripcion: escribe cada nodo que tenga el uberMap
+Entrada: uberMap: dict()
+"""
+
 def print_all_nodes(uberMap):
     for o in uberMap:
         for d in  uberMap[o]:
             print("origen",o,"destino",d,"costo",uberMap[o][d].Distance, "nextNode",uberMap[o][d].NearNodeInWay)
             
+""" 
+def load_fix_element(fixElement, uberMap, localFixUbications, ubicationName, aristas):
+Descripcion: carga un elemento fijo, solo en en caso de que el elemento sea valido
+Entrada: fixElement, uberMap, localFixUbications, ubicationName, aristas
+Salida: fixUbications: dict
+"""
             
-def load_fix_element(fixElement, uberMap,localFixUbications,ubicationName,aristas):
-    
+def load_fix_element(fixElement, uberMap, localFixUbications, ubicationName, aristas): 
+
     error = check_element(ubicationName,fixElement,aristas,localFixUbications)
     if error != None:
         return error
     
-    localFixUbications[ubicationName]=fixElement
-    
+    localFixUbications[ubicationName] = fixElement
     
     d = domain.Distance()
     origin = fixElement.Address.CornerOrigin
-    basicDistance= origin.DistantTo
-    d.NearNodeInWay=None
-    d.Distance=basicDistance
+    basicDistance = origin.DistantTo
+    d.NearNodeInWay = None
+    d.Distance = basicDistance
     uberMap[origin.Name][ubicationName] = d
     
     for newOrigin in uberMap:
@@ -178,8 +184,8 @@ def load_fix_element(fixElement, uberMap,localFixUbications,ubicationName,arista
         try:
             uberMap[newOrigin][origin.Name]
             newConnection = domain.Distance()
-            newConnection.NearNodeInWay=uberMap[newOrigin][origin.Name].NearNodeInWay
-            if newConnection.NearNodeInWay== None:
+            newConnection.NearNodeInWay = uberMap[newOrigin][origin.Name].NearNodeInWay
+            if newConnection.NearNodeInWay == None:
                 newConnection.NearNodeInWay = origin.Name
             newConnection.Distance = basicDistance+uberMap[newOrigin][origin.Name].Distance
             uberMap[newOrigin][ubicationName] = newConnection
@@ -190,20 +196,76 @@ def load_fix_element(fixElement, uberMap,localFixUbications,ubicationName,arista
     grafo = uberMap
     
     global fixUbications
-    fixUbications=localFixUbications
+    fixUbications = localFixUbications
+
+""" 
+def load_mobil_element(mobilElement, uberMap, localMobileUbications, ubicationName, Aristas):
+Descripcion: carga un elemento movil, solo en en caso de que el elemento sea valido
+Entrada: mobilElement, uberMap, localMobileUbications, ubicationName, Aristas
+Salida: mobileUbications: dict
+"""
+
+def load_mobil_element(mobilElement, uberMap, localMobileUbications, ubicationName, Aristas):
+    error = check_element(ubicationName, mobilElement, Aristas, localMobileUbications)
+    if error != None:
+        return error
+    localMobileUbications[ubicationName] = mobilElement
+
+    global mobileUbications
+    mobileUbications = localMobileUbications
+
+""" 
+def create_fix_mobil_ubication(Element,direccion):
+Descripcion: Inicializa los valores de un elemento fijo o movil 
+Entrada:(Element,direccion)
+Salida: Element
+"""
+
+def create_fix_mobil_ubication(Element,direccion):
+
+    Direccion = create_address(direccion) # Lista de un par de tuplas [(,),(,)]
+    address = domain.Address()
     
-def print_ubications(fixUbications):
-    for ubi in fixUbications:
-        cornerOrigin = fixUbications[ubi].Address.CornerOrigin
-        cornerDestiny = fixUbications[ubi].Address.CornerDestiny
+    cornerOrigin = domain.Corner()
+    cornerDestiny = domain.Corner()
+    
+    cornerOrigin.Name = Direccion[0][0]
+    cornerOrigin.DistantTo = Direccion[0][1]
+    
+    cornerDestiny.Name = Direccion[1][0]
+    cornerDestiny.DistantTo = Direccion[1][1]
+
+    address.CornerOrigin = cornerOrigin
+    address.CornerDestiny = cornerDestiny 
+    
+    Element.Address = address
+    return Element
+
+""" 
+def print_ubications(fix_or_mobil_Ubications):
+Descripcion: escribe cada ubicacion fija o movil cargada
+Entrada: fix_or_mobil_Ubications: dict()
+Salida: mobileUbications: dict
+"""
+
+def print_ubications(fix_or_mobil_Ubications):
+    for ubi in fix_or_mobil_Ubications:
+        cornerOrigin = fix_or_mobil_Ubications[ubi].Address.CornerOrigin
+        cornerDestiny = fix_or_mobil_Ubications[ubi].Address.CornerDestiny
         print("<",cornerOrigin.Name,">","_____",cornerOrigin.DistantTo,"_____","[",ubi,"]","_____",cornerDestiny.DistantTo,"_____","<",cornerDestiny.Name,">", end="")
         try:
-            print(fixUbications[ubi].Amount)
+            print(fix_or_mobil_Ubications[ubi].Amount)
         except:
             print("")
-            
 
+""" 
 def check_person_action(personName:str,mobileUbis:dict(),uberMap: dict(),destiny: str):
+Descripcion: verifica si es posible el viaje de la persona ingresada
+Entrada: personName:str, mobileUbis:dict(), uberMap: dict(), destiny: str
+Salida: str: error, None 
+"""
+
+def check_person_action(personName:str, mobileUbis:dict(), uberMap: dict(), destiny: str):
 
     try:
         person =  mobileUbis[personName]
@@ -218,9 +280,15 @@ def check_person_action(personName:str,mobileUbis:dict(),uberMap: dict(),destiny
         return "La persona ingresada es incapaz de llegar a ese punto"
     
     return None
-    
+
+""" 
 def find_nearests_3cars(personName,mobileUbis,uberMap):
-    
+Descripcion: encuentra los tres autos mas cercanos
+Entrada: (personName,mobileUbis,uberMap)
+Salida: lista
+"""
+
+def find_nearests_3cars(personName,mobileUbis,uberMap):
 
     person =  mobileUbis[personName]
     
@@ -259,10 +327,16 @@ def find_nearests_3cars(personName,mobileUbis,uberMap):
                 
     return cars[0:3]
 
+""" 
 def find_path(uberMap:dict(),origin: str,destiny:str):
+Descripcion: encuentra los tres autos mas cercanos
+Entrada: (uberMap:dict(), origin:str, destiny:str)
+Salida: lista
+"""
+
+def find_path(uberMap:dict(), origin:str, destiny:str):
     
     path = []
-    
     nextNode = origin
         
     while nextNode != None:
@@ -274,8 +348,14 @@ def find_path(uberMap:dict(),origin: str,destiny:str):
     
     return path
 
+""" 
+def move_mobile_elements(mobileUbis:dict(), personName: str, carName:str, amount:int, destiny:str, fixUbi:dict()):
+Descripcion: mueve un elemento movil 
+Entrada: (mobileUbis:dict(), personName: str, carName:str, amount:int, destiny:str, fixUbi:dict())
+Salida: mobileUbications:dict()
+"""
 
-def move_mobile_elements(mobileUbis:dict(),personName: str, carName:str,amount:int,destiny:str,fixUbi:dict()):
+def move_mobile_elements(mobileUbis:dict(), personName: str, carName:str, amount:int, destiny:str, fixUbi:dict()):
     
     mobileUbis[personName].Amount -= amount
     
@@ -304,4 +384,3 @@ def move_mobile_elements(mobileUbis:dict(),personName: str, carName:str,amount:i
     
     global mobileUbications
     mobileUbications = mobileUbis
-    
