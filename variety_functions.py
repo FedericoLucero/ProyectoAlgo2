@@ -65,18 +65,21 @@ Salidas:
   False = NO cumple al menos una condicon }
 """
 
-def check_element(ubicationName,element,uberMap,ubications):
+def check_element(ubicationName,element,aristas,ubications):
     corner1 = element.Address.CornerOrigin
     corner2 = element.Address.CornerDestiny
-    
+    distance = 0
     try:
-        mapNode = uberMap[corner1.Name][corner2.Name]
-        if mapNode.NearNodeInWay != None:
-            return "La direccion para la ubicacion no es posible ya que las esquinas plantedas no tienen una conexion directa" 
+        for a in aristas:
+            if a[0] == corner1.Name and a[1] == corner2.Name:
+                distance = a[2]
+                break
+        if distance == 0:
+            return "La direccion para la ubicacion no es posible ya que las esquinas plantedas no tienen una conexion directa"
     except:
         return "La direccion para la ubicacion no es posible ya que las esquinas plantedas no tienen una conexion directa"
     
-    if mapNode.Distance != corner1.DistantTo+corner2.DistantTo:
+    if distance != corner1.DistantTo+corner2.DistantTo:
         return "La direccion para la ubicacion no es posible ya que las distancias no son adecuadas"
 
     try:
@@ -152,9 +155,9 @@ def print_all_nodes(uberMap):
             print("origen",o,"destino",d,"costo",uberMap[o][d].Distance, "nextNode",uberMap[o][d].NearNodeInWay)
             
             
-def load_fix_element(fixElement, uberMap,localFixUbications,ubicationName):
+def load_fix_element(fixElement, uberMap,localFixUbications,ubicationName,aristas):
     
-    error = check_element(ubicationName,fixElement,uberMap,localFixUbications)
+    error = check_element(ubicationName,fixElement,aristas,localFixUbications)
     if error != None:
         return error
     
