@@ -2,12 +2,15 @@ import variety_functions
 import diccionary
 import argparse
 import domain
+import graphic_interface
 
 grafo = dict() #definimos la variable grafo para la persistencia de los datos
 
 fixUbications = dict()
 
 mobileUbications = dict()
+
+selectCar = None
 """ 
 def create_map(local_path):
 Descripcion: Código para crear el mapa utilizando el local_path
@@ -169,6 +172,7 @@ def create_trip(persona, direccion_elemento):
         
         nearestCars = variety_functions.find_nearests_3cars(persona,mobileUbications,grafo)
 
+        global selectCar
         print(nearestCars)
         if len(nearestCars)==0:
             print ("No hay autos disponibles para tu monto actual")
@@ -176,8 +180,14 @@ def create_trip(persona, direccion_elemento):
         
         origin = mobileUbications[persona].Address.CornerOrigin.Name
         print(variety_functions.find_path(grafo,origin,direccion_elemento))
-       
-        variety_functions.move_mobile_elements(mobileUbications,persona,nearestCars[0][0],nearestCars[0][1],destiny,fixUbications)
+        
+        i=graphic_interface.exec(nearestCars)
+        if i == 0:
+            print("no se seleccionó ningun auto")
+            return
+        i-=1
+        print(i)
+        variety_functions.move_mobile_elements(mobileUbications,persona,nearestCars[i][0],nearestCars[i][1],destiny,fixUbications)
 
         variety_functions.print_ubications(mobileUbications)
 

@@ -219,7 +219,7 @@ def check_person_action(personName:str,mobileUbis:dict(),uberMap: dict(),destiny
     
     return None
     
-def find_nearests_3cars(personName:str,mobileUbis:dict(),uberMap: dict()):
+def find_nearests_3cars(personName,mobileUbis,uberMap):
     
 
     person =  mobileUbis[personName]
