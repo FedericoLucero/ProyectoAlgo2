@@ -125,7 +125,6 @@ def create_trip(persona, direccion_elemento):
             return
         
         nearestCars = variety_functions.find_nearests_3cars(persona, mobileUbications, grafo)
-
         global selectCar
         print(nearestCars)
         if len(nearestCars) == 0:
@@ -135,7 +134,7 @@ def create_trip(persona, direccion_elemento):
         origin = mobileUbications[persona].Address.CornerOrigin.Name
         print(variety_functions.find_path(grafo, origin, direccion_elemento))
         
-        i = graphic_interface.exec(nearestCars)
+        i = graphic_interface.exec(nearestCars,persona,mobileUbications[persona].Amount)
         if i == 0:
             print("no se seleccionó ningun auto")
             return

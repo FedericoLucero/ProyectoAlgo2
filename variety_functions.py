@@ -294,7 +294,7 @@ def find_nearests_3cars(personName,mobileUbis,uberMap):
     
     personOrigin = person.Address.CornerOrigin
     
-    cars =[]
+    cars =dict()
     
     for mobile in mobileUbis:
         if mobile[0] != "C":
@@ -313,19 +313,18 @@ def find_nearests_3cars(personName,mobileUbis,uberMap):
         tripAmount = (d.Distance+car.Amount)/4 
         if tripAmount>person.Amount:
             continue
-        if len(cars)<3:
-            cars.append((mobile,tripAmount))
-        else:
-            maxAmountIndex = 0
-            maxValue = 0
-            for i in range(0,len(cars)):
-                if cars[i][1]>maxValue:
-                    maxValue=cars[i][1]
-                    maxAmountIndex = i
-            if tripAmount < maxAmountIndex:
-                cars[maxAmountIndex]=(mobile,tripAmount)
-                
-    return cars[0:3]
+        cars[mobile]=tripAmount
+
+    
+    returnCars=[]
+    sorted_cars = dict(sorted(cars.items(), key=lambda x: x[1]))
+    count = 0
+    for sc in sorted_cars:
+        if count ==3:
+            break
+        returnCars.append((sc,sorted_cars[sc]))
+        count+=1
+    return  returnCars
 
 """ 
 def find_path(uberMap:dict(),origin: str,destiny:str):
