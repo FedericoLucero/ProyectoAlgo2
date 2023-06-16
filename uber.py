@@ -1,14 +1,9 @@
 import variety_functions
-import diccionary
 import argparse
 import domain
 import graphic_interface
 
 # Definimos las variables para la persistencia de los datos
-grafo = dict() 
-fixUbications = dict()
-mobileUbications = dict()
-selectCar = None
 
 """ 
 def create_map(local_path):
@@ -27,14 +22,11 @@ def create_map(local_path):
 
     uberMap = variety_functions.create_map_dictionary(Vertices, Aristas) # retorna diccionary
 
-    global grafo
-    grafo = uberMap
     variety_functions.open_file_dump("uberMap.pickle", "wb", uberMap) # guarda
-    variety_functions.open_file_dump("fixUbications.pickle", "wb", fixUbications) # guarda
-    variety_functions.open_file_dump("mobileUbications.pickle", "wb", mobileUbications) # guarda
+    variety_functions.open_file_dump("fixUbications.pickle", "wb", dict()) # guarda
+    variety_functions.open_file_dump("mobileUbications.pickle", "wb", dict()) # guarda
     
     if uberMap != None:
-        variety_functions.print_all_nodes(uberMap)
         print("mapa creado con exito")
     else:
         print("ocurrio un error creando el mapa")
@@ -49,23 +41,20 @@ Herraminetas/Estructuras usadas:
 def load_fix_element(nombre, direccion):
     nombre = str(nombre)
 
-    global grafo
-    global fixUbications
-
     fixElement = domain.FixUbication()
     fixElement = variety_functions.create_fix_mobil_ubication(fixElement, direccion)
 
     grafo = variety_functions.open_file_load("uberMap.pickle","rb") # carga 
     fixUbications = variety_functions.open_file_load("fixUbications.pickle","rb") # carga
 
-    Vertices = variety_functions.open_file_load("Vertices.pickle","rb") # carga 
     Aristas = variety_functions.open_file_load("Aristas.pickle","rb") # carga
 
     error = variety_functions.load_fix_element(fixElement, grafo, fixUbications, nombre, Aristas) # retorna string o None
-    print("loading:",nombre,error)
-    #variety_functions.print_all_nodes(grafo)
-    variety_functions.print_ubications(fixUbications)
-
+    if error != None:
+        print(error)
+        return
+    
+    variety_functions.print_ubications(fixUbications)    
     if error == None:
         variety_functions.open_file_dump("fixUbications.pickle", "wb", fixUbications) # guarda
         variety_functions.open_file_dump("uberMap.pickle", "wb", grafo) # guarda
@@ -79,19 +68,15 @@ Herraminetas/Estructuras usadas:
 
 def load_movil_element(nombre, direccion, monto):
 
-    global grafo
-    global mobileUbications
-
     mobilElement = domain.MobileUbication()
     mobilElement.Amount = int(monto)
     mobilElement = variety_functions.create_fix_mobil_ubication(mobilElement, direccion)
 
     mobileUbications = variety_functions.open_file_load("mobileUbications.pickle","rb") # carga
-
-    Vertices = variety_functions.open_file_load("Vertices.pickle", "rb") # carga
+   
     Aristas = variety_functions.open_file_load("Aristas.pickle", "rb") # carga
 
-    error = variety_functions.load_mobil_element(mobilElement, grafo, mobileUbications, nombre, Aristas) # retorna string o None
+    error = variety_functions.load_mobil_element(mobilElement, mobileUbications, nombre, Aristas) # retorna string o None
     print("loading:",nombre, error)
     #variety_functions.print_all_nodes(grafo)
     variety_functions.print_ubications(mobileUbications)
@@ -106,42 +91,47 @@ Herraminetas/Estructuras usadas:
 """
 
 def create_trip(persona, direccion_elemento):
-        global grafo
-        global mobileUbications
-        global fixUbications
         
         grafo = variety_functions.open_file_load("uberMap.pickle","rb") # carga 
         fixUbications = variety_functions.open_file_load("fixUbications.pickle","rb") # carga
         mobileUbications = variety_functions.open_file_load("mobileUbications.pickle","rb") # carga
 
-        destiny = direccion_elemento
-        if len(direccion_elemento)>3:
+
+        print("Persona: ",persona, ". Viaje hasta:",direccion_elemento)
+        distanceToDestiny = 0
+        destiny = ""
+        origin = ""
+        if len(direccion_elemento)>3: #Analiza si es una ubicacion (no mayor que 3 digitos) o  una direccion 
             destUbi = variety_functions.create_address(direccion_elemento)
             destiny = destUbi[1][0]
-
-        error = variety_functions.check_person_action(persona, mobileUbications, grafo, direccion_elemento)
+            distanceToDestiny = destUbi[1][1]
+            origin = destUbi[0][0]
+        else:
+            destiny = fixUbications[direccion_elemento].Address.CornerDestiny.Name
+            origin = fixUbications[direccion_elemento].Address.CornerOrigin.Name
+            distanceToDestiny = fixUbications[direccion_elemento].Address.CornerDestiny.DistantTo
+            
+        error = variety_functions.check_person_action(persona, mobileUbications, grafo, destiny,distanceToDestiny,origin)
         if error != None:
             print(error)
             return
         
         nearestCars = variety_functions.find_nearests_3cars(persona, mobileUbications, grafo)
-        global selectCar
-        print(nearestCars)
         if len(nearestCars) == 0:
-            print ("No hay autos disponibles para tu monto actual")
+            print ("No hay vehiculos disponibles por tu monto actual o por que se encuentran inhabilitados")
             return
         
-        origin = mobileUbications[persona].Address.CornerOrigin.Name
-        print(variety_functions.find_path(grafo, origin, direccion_elemento))
+        personDestiny = mobileUbications[persona].Address.CornerDestiny.Name
         
         i = graphic_interface.exec(nearestCars,persona,mobileUbications[persona].Amount)
         if i == 0:
-            print("no se seleccionó ningun auto")
+            print("No se seleccionó ningun auto")
             return
         i-=1
-        print(i)
+ 
+        print("Camino mas corto: ",variety_functions.find_path(grafo, personDestiny, destiny,origin))
 
-        variety_functions.move_mobile_elements(mobileUbications,persona,nearestCars[i][0],nearestCars[i][1],destiny,fixUbications)
+        variety_functions.move_mobile_elements(mobileUbications,persona,nearestCars[i][0],nearestCars[i][1],direccion_elemento,fixUbications)
         variety_functions.print_ubications(mobileUbications)
 
         variety_functions.open_file_dump("mobileUbications.pickle", "wb", mobileUbications) # guarda
@@ -152,6 +142,11 @@ def reset_all():
     variety_functions.open_file_dump("uberMap.pickle", "wb", "")
     variety_functions.open_file_dump("fixUbications.pickle", "wb", "")
     variety_functions.open_file_dump("mobileUbications.pickle", "wb", "")
+    
+def print_graph():
+    uberMap = variety_functions.open_file_load("uberMap.pickle", "rb")
+    variety_functions.print_all_nodes(uberMap)
+    
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -160,6 +155,7 @@ if __name__ == "__main__":
     parser.add_argument("-load_movil_element", nargs=3, metavar=("nombre", "direccion", "monto"), help="Cargar un elemento móvil en el mapa")
     parser.add_argument("-create_trip", nargs=2, metavar=("persona", "direccion/elemento"), help="Crear un viaje")
     parser.add_argument("-reset_all", action="store_true", help="Resetear todos los archivos")
+    parser.add_argument("-print_graph", action="store_true", help="Imprimir grafo")
     args = parser.parse_args()
 
     if args.create_map:
@@ -172,37 +168,32 @@ if __name__ == "__main__":
         create_trip(*args.create_trip)
     if args.reset_all:
         reset_all()
+    if args.print_graph:
+        print_graph()
 
-    """
+
     # Crea mapa
     create_map("local_path_original.txt")
 
-    # Direcciones fijas
-    load_fix_element( "H4", "<e14,3>,<e13,5>")
-    load_fix_element( "H1", "<e2,2>,<e3,2>")
-    load_fix_element( "A1", "<e12,1>,<e16,5>")
-    load_fix_element( "T5", "<e1,10>,<e5,0>")
-    load_fix_element( "S10", "<e9,2>,<e10,2>")
-    load_fix_element( "SF2", "<e3,2>,<e11,2>")
+    load_fix_element("H1", "<e4,5> <e8,5>") 
+    load_fix_element("A1", "<e5,5> <e1,5>") 
+    load_fix_element("T5", "<e14,8> <e13,0>") 
+    load_fix_element("H4", "<e9,0> <e10,4>") 
+    load_fix_element("S10", "<e12,3> <e16,3>") 
+    load_fix_element("K1", "<e12,3> <e16,3>") 
     
-    # Direcciones moviles
-    load_movil_element("P1", "<e10,4>,<e11,4>", "2000")
-    load_movil_element("P2", "<e11,0>,<e7,100>", "4000")
-    load_movil_element("P3", "<e15,2>,<e11,4>", "2500")
-    load_movil_element("P4", "<e4,5>,<e8,5>", "50")
-    load_movil_element("C1", "<e14,2>,<e13,6>", "200")
-    load_movil_element("C2", "<e1,2>,<e2,2>", "50")
-    load_movil_element("C3", "<e3,4>,<e7,4>", "110")
-    load_movil_element("C4", "<e9,1>,<e10,3>", "20")
-    load_movil_element("C5", "<e7,50>,<e11,50>", "25")
-
-    # Crea Viaje
-    create_trip("P1", "H4")
-    create_trip("P5" ,"<e3,10>,<e2,40>")
-    create_trip("P3" ,"H1")
-    create_trip("P4" ,"<e8,5>,<e4,5>")
-    create_trip("P1" ,"A1")
-    #create_trip ("P2" ,"<e9,50> <e10,0>")
-    """
-
-    reset_all()
+    load_movil_element( "P1","<e3,3> <e4,3>" ,20000)
+    load_movil_element( "P2","<e9,0> <e10,4>" ,40000)
+    load_movil_element( "P3","<e14,8> <e13,8>" ,2500)
+    load_movil_element( "P4","<e7,50> <e11,50>" ,0)
+    load_movil_element( "C1","<e7,0> <e6,4>" ,200)
+    load_movil_element( "C2", "<e9,0> <e10,4>" ,0)
+    load_movil_element( "C3", "<e7,49> <e11,51>" ,50)
+    
+    create_trip("P1", "<e3,2> <e8,3>")
+    create_trip("P1", "<e11,2> <e12,2>")
+    create_trip("P1", "<e15,1> <e16,1>")
+    create_trip("P2", "H4")
+    create_trip("P2", "<e7,50> <e11,50>")
+    create_trip("P3", "S10")
+    create_trip("P4", "<e7,100> <e11,0>")

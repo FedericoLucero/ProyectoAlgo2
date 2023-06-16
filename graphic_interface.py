@@ -3,7 +3,6 @@ import tkinter as tk
   
 # Creating the tkinter window
 def exec(cars,personName,monto):
-    print(cars)
     root = tk.Tk()
     root.title("Aceptar el viaje")
     text_label = ttk.Label(root, text="Persona "+personName+" con monto "+str(monto))

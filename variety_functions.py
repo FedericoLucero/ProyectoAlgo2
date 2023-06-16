@@ -108,12 +108,10 @@ Salida: uberMap: dict()
 def create_map_dictionary(Vertices,Aristas):
     uberMap = dict() #defino el objeto como un dict vacio para poder acceder luego a todos los vertices 
     for vertice in Vertices: # Recorre cada vertice  
-        grafo[vertice] = {} # Agregar vertices al grafo 
         uberMap[vertice] = dict() #Defino cada vertice como un diccionario vacio para que  luego pueda acceder a "[origen][destino]" 
         
     for arista in Aristas: # recorre cada arista  
         origen, destino, distancia = arista
-        grafo[origen][destino] = distancia # Agrega aristas al grafo  
         newAddress = domain.Distance() #Genera objeto de tipo Distance 
         newAddress.Distance=distancia #asigna el valor de distancia de la arista al dicho objeto  
         uberMap[origen][destino] = newAddress #genera  en la estuctura "ubermap" la arista correspondiente con las aristas "directas" 
@@ -199,19 +197,18 @@ def load_fix_element(fixElement, uberMap, localFixUbications, ubicationName, ari
     fixUbications = localFixUbications
 
 """ 
-def load_mobil_element(mobilElement, uberMap, localMobileUbications, ubicationName, Aristas):
+def load_mobil_element(mobilElement, localMobileUbications, ubicationName, Aristas):
 Descripcion: carga un elemento movil, solo en en caso de que el elemento sea valido
-Entrada: mobilElement, uberMap, localMobileUbications, ubicationName, Aristas
+Entrada: mobilElement, localMobileUbications, ubicationName, Aristas
 Salida: mobileUbications: dict
 """
 
-def load_mobil_element(mobilElement, uberMap, localMobileUbications, ubicationName, Aristas):
+def load_mobil_element(mobilElement, localMobileUbications, ubicationName, Aristas):
     error = check_element(ubicationName, mobilElement, Aristas, localMobileUbications)
     if error != None:
         return error
     localMobileUbications[ubicationName] = mobilElement
 
-    global mobileUbications
     mobileUbications = localMobileUbications
 
 """ 
@@ -249,12 +246,13 @@ Salida: mobileUbications: dict
 """
 
 def print_ubications(fix_or_mobil_Ubications):
+    print("Ubicaciones:")
     for ubi in fix_or_mobil_Ubications:
         cornerOrigin = fix_or_mobil_Ubications[ubi].Address.CornerOrigin
         cornerDestiny = fix_or_mobil_Ubications[ubi].Address.CornerDestiny
         print("<",cornerOrigin.Name,">","_____",cornerOrigin.DistantTo,"_____","[",ubi,"]","_____",cornerDestiny.DistantTo,"_____","<",cornerDestiny.Name,">", end="")
         try:
-            print(fix_or_mobil_Ubications[ubi].Amount)
+            print("Monto/Costo: ", fix_or_mobil_Ubications[ubi].Amount)
         except:
             print("")
 
@@ -265,7 +263,7 @@ Entrada: personName:str, mobileUbis:dict(), uberMap: dict(), destiny: str
 Salida: str: error, None 
 """
 
-def check_person_action(personName:str, mobileUbis:dict(), uberMap: dict(), destiny: str):
+def check_person_action(personName:str, mobileUbis:dict(), uberMap: dict(), destiny: str,distanceToDestiny: int,origin: str):
 
     try:
         person =  mobileUbis[personName]
@@ -274,11 +272,21 @@ def check_person_action(personName:str, mobileUbis:dict(), uberMap: dict(), dest
     
     cornerDestiny = person.Address.CornerDestiny
     
+    if cornerDestiny.Name == destiny:
+        if cornerDestiny.DistantTo == distanceToDestiny:
+            return "La persona ya está en el lugar ingresado"
+        return None
     try:
         uberMap[cornerDestiny.Name][destiny]
+        if origin != "":
+            try:
+                d = grafo[origin][destiny]
+                if d.NearNodeInWay != None:
+                    return "La esquina no es una esquina posible"
+            except:
+                return "No hay camino posible entre las 2 esquinas"
     except:
         return "La persona ingresada es incapaz de llegar a ese punto"
-    
     return None
 
 """ 
@@ -293,6 +301,7 @@ def find_nearests_3cars(personName,mobileUbis,uberMap):
     person =  mobileUbis[personName]
     
     personOrigin = person.Address.CornerOrigin
+    personDestiny = person.Address.CornerDestiny
     
     cars =dict()
     
@@ -304,12 +313,21 @@ def find_nearests_3cars(personName,mobileUbis,uberMap):
         try:
             d = domain.Distance()
             if carDestiny.Name==personOrigin.Name:
-                d.Distance=0
+                d.Distance = carDestiny.DistantTo + personOrigin.DistantTo
+            elif carDestiny.Name == personDestiny.Name:
+                if carDestiny.DistantTo > personDestiny.DistantTo:
+                    try:
+                        d = uberMap[carDestiny.Name][carDestiny.Name]
+                        d.Distance += carDestiny.DistantTO
+                    except:
+                        continue
+                else:
+                    d.Distance= personDestiny.DistantTo-carDestiny.DistantTo
             else:
                 d =uberMap[carDestiny.Name][personOrigin.Name]
+                d.Distance += carDestiny.DistantTo + personOrigin.DistantTo
         except:
             continue
-        
         tripAmount = (d.Distance+car.Amount)/4 
         if tripAmount>person.Amount:
             continue
@@ -333,16 +351,19 @@ Entrada: (uberMap:dict(), origin:str, destiny:str)
 Salida: lista
 """
 
-def find_path(uberMap:dict(), origin:str, destiny:str):
+def find_path(uberMap:dict(), personDestiny:str, destiny:str,origin:str):
     
     path = []
-    nextNode = origin
-        
+    nextNode = personDestiny
+    path.append(personDestiny)
+    if personDestiny==destiny:
+        return path
     while nextNode != None:
-        nextNode = uberMap[nextNode][destiny].NearNodeInWay
+        nextNode = uberMap[nextNode][origin].NearNodeInWay
         if nextNode != None:
             path.append(nextNode)
         
+    path.append(origin)
     path.append(destiny)
     
     return path
